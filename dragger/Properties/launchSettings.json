@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "dragger": {
+      "commandName": "Project",
+      "commandLineArgs": "test1.txt\r\ntest2.txt\r\n.\\test-loooooooong.txt",
+      "workingDirectory": "E:\\cs\\dragger\\dragger\\test"
+    }
+  }
+}
