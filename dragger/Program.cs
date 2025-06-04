@@ -12,6 +12,13 @@ static class Program
 		Application.SetCompatibleTextRenderingDefault(true);
 		_ = Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
 		Application.EnableVisualStyles();
+
+		if (args.Length == 0)
+		{
+			_ = MessageBox.Show($"Usage: {AppDomain.CurrentDomain.FriendlyName} [filePath]...");
+			return;
+		}
+
 		Application.Run(new DragSourceForm(args));
 	}
 }

@@ -14,7 +14,7 @@ public class DragSourceForm : Form
 
 		_files = [.. files
 			.Select(f => Path.Combine(Directory.GetCurrentDirectory(), f))
-			.Where(File.Exists)];
+			.Where(f => File.Exists(f) || Directory.Exists(f))];
 
 		CreateAndSizeForm();
 	}
@@ -42,7 +42,7 @@ public class DragSourceForm : Form
 
 		// Calculate and set form size
 		var formWidth = maxWidth + Padding.Left + Padding.Right;
-		var formHeight = totalHeight + Padding.Top + Padding.Bottom + SystemInformation.CaptionHeight;
+		var formHeight = totalHeight + Padding.Top + Padding.Bottom + SystemInformation.CaptionHeight + 20;
 		Size = new Size(formWidth, formHeight);
 
 		// Prevent resizing

@@ -6,7 +6,7 @@ public class DragItem : UserControl
 	private Label label;
 	private TableLayoutPanel tablePanel;
 
-	public DragItem(string filePath)
+	public DragItem(string path)
 	{
 		Dock = DockStyle.Top;
 		Height = 40;
@@ -41,14 +41,19 @@ public class DragItem : UserControl
 		tablePanel.Controls.Add(pictureBox, 0, 0);
 		tablePanel.Controls.Add(label, 1, 0);
 
-		if (File.Exists(filePath))
+		if (File.Exists(path))
 		{
-			pictureBox.Image = Icon.ExtractAssociatedIcon(filePath)?.ToBitmap();
-			label.Text = Path.GetFileName(filePath);
+			pictureBox.Image = Icon.ExtractAssociatedIcon(path)?.ToBitmap();
+			label.Text = Path.GetFileName(path);
+		}
+		else if (Directory.Exists(path))
+		{
+			pictureBox.Image = FolderIcon.ExtractFolderIcon(path)?.ToBitmap();
+			label.Text = Path.GetDirectoryName(path);
 		}
 		else
 		{
-			label.Text = "File not found!";
+			throw new ArgumentException("filePath is not a file or folder");
 		}
 
 		Controls.Add(tablePanel);
@@ -75,7 +80,7 @@ public class DragItem : UserControl
 		// Why extra margin?
 		return new(
 			totalWidth + 45,
-			Height + 10
+			Height
 		);
 	}
 }
