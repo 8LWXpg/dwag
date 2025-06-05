@@ -18,7 +18,7 @@ Download executable from latest release.
 
 1. Clone the repo
 1. `cd dwag; dotnet publish -c Release -r [win-x64|win-arm64]`
-1. Copy build output
+1. Copy build output from `bin\Release\net9.0-windows\[win-x64|win-arm64]\publish`
 
 ## Usage
 
