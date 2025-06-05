@@ -60,8 +60,8 @@ public class DragSourceForm : Form
 
 		var dataObject = new DataObject();
 		dataObject.SetData(DataFormats.FileDrop, _files);
-		DragDropEffects result = DoDragDrop(dataObject, DragDropEffects.Copy);
-		if (result == DragDropEffects.Move)
+		DragDropEffects result = DoDragDrop(dataObject, Globals.ArgParser.Move ? DragDropEffects.Move : DragDropEffects.Copy);
+		if (result is DragDropEffects.Move or DragDropEffects.Copy)
 		{
 			Application.Exit();
 		}

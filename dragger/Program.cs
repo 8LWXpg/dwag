@@ -1,5 +1,13 @@
 namespace dragger;
 
+public static class Globals
+{
+	private static Lazy<ArgParser>? _argParser;
+	public static ArgParser ArgParser => _argParser?.Value ?? throw new InvalidOperationException("GlobalState not initialized. Call Initialize() first.");
+
+	public static void Initialize(ArgParser argParser) => _argParser = new(() => argParser);
+}
+
 static class Program
 {
 	/// <summary>
@@ -13,9 +21,10 @@ static class Program
 		_ = Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
 		Application.EnableVisualStyles();
 
-		if (args.Length == 0)
+		Globals.Initialize(new(args));
+		if (args.Length == 0 || Globals.ArgParser.Help)
 		{
-			_ = MessageBox.Show($"Usage: {AppDomain.CurrentDomain.FriendlyName} [filePath]...");
+			_ = MessageBox.Show(Globals.ArgParser.GetHelp());
 			return;
 		}
 
