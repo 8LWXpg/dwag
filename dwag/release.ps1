@@ -19,7 +19,7 @@ foreach ($arch in $targetArch) {
     Remove-Item "$tempDir/*" -Recurse -Force -ErrorAction Ignore
     mkdir "$tempDir" -ErrorAction Ignore
     Copy-Item $releasePath, ../README.md, ../CHANGELOG.md $tempDir -Recurse -Force
-    Compress-Archive "$tempDir" "./out/$name-$version-$arch.zip" -Force
+    Compress-Archive "$tempDir" "./out/$name-$tag-$arch.zip" -Force
 }
 
 gh release create v$tag --notes (parse-changelog ..\CHANGELOG.md) (Get-ChildItem ./out/*.zip)
