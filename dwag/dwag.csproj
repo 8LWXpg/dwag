@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
@@ -9,6 +9,13 @@
         <PublishSingleFile>true</PublishSingleFile>
         <SelfContained>false</SelfContained>
         <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+
+        <Version>0.1.0.0</Version>
+        <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+        <Title>dwag</Title>
+		<Product>Drag files/folders from your terminal in Windows</Product>
+		<Authors>8LWXpg</Authors>
+		<RepositoryUrl>https://github.com/8LWXpg/dwag</RepositoryUrl>
     </PropertyGroup>
 
 </Project>

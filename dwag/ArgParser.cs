@@ -59,7 +59,7 @@ public class ArgParser
 
 	public string GetHelp()
 	{
-		StringBuilder sb = new($"Usage: {AppDomain.CurrentDomain.FriendlyName} [options] [path]...\nOptions:\n");
+		StringBuilder sb = new($"{AppDomain.CurrentDomain.FriendlyName} {Application.ProductVersion}\nUsage: {AppDomain.CurrentDomain.FriendlyName} [options] [path]...\nOptions:\n");
 
 		foreach (PropertyInfo? prop in GetType()
 			.GetProperties()
