@@ -10,10 +10,11 @@
         <SelfContained>false</SelfContained>
         <RuntimeIdentifier>win-x64</RuntimeIdentifier>
 
-        <Version>0.1.0.0</Version>
+        <Version>0.1.0</Version>
         <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
         <Title>dwag</Title>
-		<Product>Drag files/folders from your terminal in Windows</Product>
+		<Product>dwag</Product>
+        <Description>Drag files/folders from your terminal in Windows</Description>
 		<Authors>8LWXpg</Authors>
 		<RepositoryUrl>https://github.com/8LWXpg/dwag</RepositoryUrl>
     </PropertyGroup>
