@@ -6,6 +6,7 @@ $targetArch = @('win-x64', 'win-arm64')
 $tag = Read-Host 'New tag'
 Set-Content -Path .\dwag.csproj -NoNewline ((Get-Content .\dwag.csproj -Raw) -replace '<Version>\d+\.\d+\.\d+\.0</Version>', "<Version>$tag.0</Version>")
 git tag v$tag
+git push --tags
 
 mkdir out -ErrorAction Ignore > $null
 Remove-Item ./out/*.zip -Recurse -Force -ErrorAction Ignore
