@@ -3,7 +3,7 @@
     "dragger": {
       "commandName": "Project",
       "commandLineArgs": "test1.txt\ntest2.txt\n.\\test-loooooooong.txt\n../bin/",
-      "workingDirectory": "E:\\cs\\dragger\\dragger\\test"
+      "workingDirectory": "E:\\cs\\dwag\\dwag\\test"
     }
   }
 }

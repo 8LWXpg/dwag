@@ -1,5 +1,3 @@
-using System;
-using System.ComponentModel.Design;
 using System.Reflection;
 using System.Text;
 
@@ -61,7 +59,7 @@ public class ArgParser
 
 	public string GetHelp()
 	{
-		StringBuilder sb = new($"Usage: {AppDomain.CurrentDomain.FriendlyName} [options] [filePath]...\nOptions:\n");
+		StringBuilder sb = new($"Usage: {AppDomain.CurrentDomain.FriendlyName} [options] [path]...\nOptions:\n");
 
 		foreach (PropertyInfo? prop in GetType()
 			.GetProperties()

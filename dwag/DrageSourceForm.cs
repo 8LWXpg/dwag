@@ -3,6 +3,7 @@ namespace dwag;
 public class DragSourceForm : Form
 {
 	private readonly string[] _files;
+	private ToolTip toolTip = new();
 
 	public DragSourceForm(string[] files)
 	{
@@ -11,6 +12,10 @@ public class DragSourceForm : Form
 		MouseLeave += (s, e) => BackColor = Color.White;
 		MouseMove += DragSource_MouseMove;
 		Cursor = Cursors.Hand;
+		TopMost = true;
+		Text = AppDomain.CurrentDomain.FriendlyName;
+		StartPosition = FormStartPosition.Manual;
+		Location = Cursor.Position;
 
 		_files = [.. files
 			.Select(f => Path.Combine(Directory.GetCurrentDirectory(), f))

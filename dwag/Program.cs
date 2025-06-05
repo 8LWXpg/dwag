@@ -24,7 +24,7 @@ static class Program
 		Globals.Initialize(new(args));
 		if (args.Length == 0 || Globals.ArgParser.Help)
 		{
-			_ = MessageBox.Show(Globals.ArgParser.GetHelp());
+			_ = MessageBox.Show(Globals.ArgParser.GetHelp(), AppDomain.CurrentDomain.FriendlyName);
 			return;
 		}
 
