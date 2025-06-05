@@ -1,4 +1,4 @@
-namespace dragger;
+namespace dwag;
 
 public static class Globals
 {

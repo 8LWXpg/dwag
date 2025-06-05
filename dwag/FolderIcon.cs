@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 
-namespace dragger;
+namespace dwag;
 
 public static class FolderIcon
 {

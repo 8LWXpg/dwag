@@ -1,4 +1,4 @@
-namespace dragger;
+namespace dwag;
 
 public class DragItem : UserControl
 {

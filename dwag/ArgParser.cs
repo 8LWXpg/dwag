@@ -3,7 +3,7 @@ using System.ComponentModel.Design;
 using System.Reflection;
 using System.Text;
 
-namespace dragger;
+namespace dwag;
 
 [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
 public class ArgAttribute(string? shortName = null, string? description = null) : Attribute

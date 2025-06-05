@@ -1,4 +1,4 @@
-namespace dragger;
+namespace dwag;
 
 partial class DrageSourceForm : Form
 {
