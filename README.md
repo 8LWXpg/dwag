@@ -1,6 +1,6 @@
 # dwag
 
-Drag files/folders from your terminal in Windows
+Drag and drop files/folders from your terminal on Windows
 
 ![preview](./assets/preview.avif)
 
