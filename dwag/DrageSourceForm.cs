@@ -3,7 +3,6 @@ namespace dwag;
 public class DragSourceForm : Form
 {
 	private readonly string[] _files;
-	private ToolTip toolTip = new();
 
 	public DragSourceForm(string[] files)
 	{
@@ -18,6 +17,7 @@ public class DragSourceForm : Form
 		Location = Cursor.Position;
 
 		_files = [.. files
+			.Reverse()
 			.Select(f => Path.Combine(Directory.GetCurrentDirectory(), f))
 			.Where(f => File.Exists(f) || Directory.Exists(f))];
 
@@ -63,8 +63,7 @@ public class DragSourceForm : Form
 			return;
 		}
 
-		var dataObject = new DataObject();
-		dataObject.SetData(DataFormats.FileDrop, _files);
+		var dataObject = new DataObject(DataFormats.FileDrop, _files);
 		DragDropEffects result = DoDragDrop(dataObject, Globals.ArgParser.Move ? DragDropEffects.Move : DragDropEffects.Copy);
 		if (result is DragDropEffects.Move or DragDropEffects.Copy)
 		{
