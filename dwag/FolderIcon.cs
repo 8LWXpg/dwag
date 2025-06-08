@@ -2,7 +2,6 @@ using System.Runtime.InteropServices;
 using Windows.Win32;
 using Windows.Win32.Storage.FileSystem;
 using Windows.Win32.UI.Shell;
-using Windows.Win32.UI.WindowsAndMessaging;
 
 namespace dwag;
 
@@ -25,7 +24,6 @@ public static class FolderIcon
 
 		unsafe
 		{
-
 			var shfi = new SHFILEINFOW();
 			SHGFI_FLAGS flags = SHGFI_FLAGS.SHGFI_ICON |
 				(largeIcon ? SHGFI_FLAGS.SHGFI_LARGEICON : SHGFI_FLAGS.SHGFI_SMALLICON);
