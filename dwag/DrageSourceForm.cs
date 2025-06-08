@@ -2,9 +2,9 @@ namespace dwag;
 
 public class DragSourceForm : Form
 {
-	private readonly string[] _files;
+	private readonly string[] _path;
 
-	public DragSourceForm(string[] files)
+	public DragSourceForm(string[] path)
 	{
 		Padding = new(10, 10, 10, 10);
 		MouseEnter += (s, e) => BackColor = Color.LightGray;
@@ -16,12 +16,12 @@ public class DragSourceForm : Form
 		StartPosition = FormStartPosition.Manual;
 		Location = Cursor.Position;
 
-		_files = [.. files
+		_path = [.. path
 			.Reverse()
-			.Select(f => Path.Combine(Directory.GetCurrentDirectory(), f))
-			.Where(f => File.Exists(f) || Directory.Exists(f))];
+			.Select(p => Path.Combine(Directory.GetCurrentDirectory(), p))
+			.Where(p => File.Exists(p) || Directory.Exists(p))];
 
-		if (_files.Length == 0)
+		if (_path.Length == 0)
 		{
 			_ = MessageBox.Show("Files/folders does not exist", AppDomain.CurrentDomain.FriendlyName);
 			Dispose();
@@ -35,9 +35,9 @@ public class DragSourceForm : Form
 		var maxWidth = 0;
 		var totalHeight = 0;
 
-		foreach (var f in _files)
+		foreach (var p in _path)
 		{
-			var item = new DragItem(f);
+			var item = new DragItem(p);
 
 			// Measure size
 			Size itemSize = item.GetSize();
@@ -69,7 +69,7 @@ public class DragSourceForm : Form
 			return;
 		}
 
-		var dataObject = new DataObject(DataFormats.FileDrop, _files);
+		var dataObject = new DataObject(DataFormats.FileDrop, _path);
 		DragDropEffects result = DoDragDrop(dataObject, Globals.ArgParser.Move ? DragDropEffects.Move : DragDropEffects.Copy);
 		if (result is DragDropEffects.Move or DragDropEffects.Copy)
 		{

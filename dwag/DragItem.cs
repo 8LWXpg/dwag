@@ -49,7 +49,7 @@ public class DragItem : UserControl
 		else if (Directory.Exists(path))
 		{
 			pictureBox.Image = FolderIcon.ExtractFolderIcon(path)?.ToBitmap();
-			label.Text = Path.GetDirectoryName(path);
+			label.Text = new DirectoryInfo(path).Name;
 		}
 		else
 		{
