@@ -21,6 +21,12 @@ public class DragSourceForm : Form
 			.Select(f => Path.Combine(Directory.GetCurrentDirectory(), f))
 			.Where(f => File.Exists(f) || Directory.Exists(f))];
 
+		if (_files.Length == 0)
+		{
+			_ = MessageBox.Show("Files/folders does not exist", AppDomain.CurrentDomain.FriendlyName);
+			Dispose();
+		}
+
 		CreateAndSizeForm();
 	}
 
