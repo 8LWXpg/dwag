@@ -5,7 +5,7 @@ $targetArch = @('win-x64', 'win-arm64')
 $tempDir = "./out/$name"
 
 $tag = Read-Host 'New tag'
-Set-Content -Path .\dwag.csproj -NoNewline ((Get-Content .\dwag.csproj -Raw) -replace '<Version>\d+\.\d+\.\d+\</Version>', "<Version>$tag.0</Version>")
+Set-Content -Path .\dwag.csproj -NoNewline ((Get-Content .\dwag.csproj -Raw) -replace '<Version>\d+\.\d+\.\d+\</Version>', "<Version>$tag</Version>")
 git commit -am 'bump'
 git tag v$tag
 git push --all
