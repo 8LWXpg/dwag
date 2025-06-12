@@ -1,3 +1,6 @@
+using Windows.Win32;
+using Windows.Win32.Graphics.Dwm;
+
 namespace dwag;
 
 public class DragSourceForm : Form
@@ -6,10 +9,18 @@ public class DragSourceForm : Form
 
 	public DragSourceForm(string[] path)
 	{
-		Padding = new(10, 10, 10, 10);
-		MouseEnter += (s, e) => BackColor = Color.LightGray;
-		MouseLeave += (s, e) => BackColor = Color.White;
+		unsafe
+		{
+			var pvAttribute = 1;
+			_ = PInvoke.DwmSetWindowAttribute(new(Handle), DWMWINDOWATTRIBUTE.DWMWA_USE_IMMERSIVE_DARK_MODE, &pvAttribute, sizeof(int));
+		}
+
+		MouseEnter += (_, _) => BackColor = Theme.Hover;
+		MouseLeave += (_, _) => BackColor = Theme.Background;
 		MouseMove += DragSource_MouseMove;
+
+		Padding = new(10, 10, 10, 10);
+		BackColor = Theme.Background;
 		Cursor = Cursors.Hand;
 		TopMost = true;
 		Text = AppDomain.CurrentDomain.FriendlyName;
@@ -46,9 +57,9 @@ public class DragSourceForm : Form
 
 			// Add to form and wire events
 			Controls.Add(item);
-			item.MouseEnter += (s, e) => OnMouseEnter(e);
-			item.MouseLeave += (s, e) => OnMouseLeave(e);
-			item.MouseMove += (s, e) => OnMouseMove(e);
+			item.MouseEnter += (_, e) => OnMouseEnter(e);
+			item.MouseLeave += (_, e) => OnMouseLeave(e);
+			item.MouseMove += (_, e) => OnMouseMove(e);
 		}
 
 		// Calculate and set form size
@@ -62,7 +73,7 @@ public class DragSourceForm : Form
 		MinimizeBox = false;
 	}
 
-	private void DragSource_MouseMove(object sender, MouseEventArgs e)
+	private void DragSource_MouseMove(object _, MouseEventArgs e)
 	{
 		if (e.Button != MouseButtons.Left)
 		{

@@ -2,9 +2,9 @@ namespace dwag;
 
 public class DragItem : UserControl
 {
-	private PictureBox pictureBox;
-	private Label label;
-	private TableLayoutPanel tablePanel;
+	private readonly PictureBox pictureBox;
+	private readonly Label label;
+	private readonly TableLayoutPanel tablePanel;
 
 	public DragItem(string path)
 	{
@@ -14,6 +14,7 @@ public class DragItem : UserControl
 
 		tablePanel = new TableLayoutPanel
 		{
+			BackColor = Color.Transparent,
 			Dock = DockStyle.Fill,
 			ColumnCount = 2,
 			RowCount = 1,
@@ -25,6 +26,7 @@ public class DragItem : UserControl
 
 		pictureBox = new PictureBox
 		{
+			BackColor = Color.Transparent,
 			Size = new Size(24, 24),
 			SizeMode = PictureBoxSizeMode.StretchImage,
 			Anchor = AnchorStyles.None,
@@ -32,6 +34,8 @@ public class DragItem : UserControl
 
 		label = new Label
 		{
+			BackColor = Color.Transparent,
+			ForeColor = Theme.Text,
 			AutoSize = true,
 			Font = new Font("Segoe UI", 10, FontStyle.Regular),
 			Anchor = AnchorStyles.Left,
@@ -58,15 +62,15 @@ public class DragItem : UserControl
 
 		Controls.Add(tablePanel);
 
-		tablePanel.MouseEnter += (s, e) => OnMouseEnter(e);
-		tablePanel.MouseLeave += (s, e) => OnMouseLeave(e);
-		tablePanel.MouseMove += (s, e) => OnMouseMove(e);
-		pictureBox.MouseEnter += (s, e) => OnMouseEnter(e);
-		pictureBox.MouseLeave += (s, e) => OnMouseLeave(e);
-		pictureBox.MouseMove += (s, e) => OnMouseMove(e);
-		label.MouseEnter += (s, e) => OnMouseEnter(e);
-		label.MouseLeave += (s, e) => OnMouseLeave(e);
-		label.MouseMove += (s, e) => OnMouseMove(e);
+		tablePanel.MouseEnter += (_, e) => OnMouseEnter(e);
+		tablePanel.MouseLeave += (_, e) => OnMouseLeave(e);
+		tablePanel.MouseMove += (_, e) => OnMouseMove(e);
+		pictureBox.MouseEnter += (_, e) => OnMouseEnter(e);
+		pictureBox.MouseLeave += (_, e) => OnMouseLeave(e);
+		pictureBox.MouseMove += (_, e) => OnMouseMove(e);
+		label.MouseEnter += (_, e) => OnMouseEnter(e);
+		label.MouseLeave += (_, e) => OnMouseLeave(e);
+		label.MouseMove += (_, e) => OnMouseMove(e);
 	}
 
 	public Size GetSize()

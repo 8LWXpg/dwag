@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.3.0]
+
+- Added dark theme support (auto detected)
+
 ## [0.2.0]
 
 - Fixed displayed folder path.
