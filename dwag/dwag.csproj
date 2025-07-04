@@ -13,7 +13,7 @@
     <PublishReadyToRun>true</PublishReadyToRun>
     <TieredCompilationQuickJitForLoops>true</TieredCompilationQuickJitForLoops>
 
-    <Version>0.3.0</Version>
+    <Version>0.3.1</Version>
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     <Title>dwag</Title>
     <Product>dwag</Product>
