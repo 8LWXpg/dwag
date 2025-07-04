@@ -16,10 +16,9 @@ static class Program
 	[STAThread]
 	static void Main(string[] args)
 	{
-		Application.EnableVisualStyles();
-		Application.SetCompatibleTextRenderingDefault(true);
 		_ = Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
 		Application.EnableVisualStyles();
+		// Application.SetCompatibleTextRenderingDefault(true);
 
 		Globals.Initialize(new(args));
 		if (args.Length == 0 || Globals.ArgParser.Help)

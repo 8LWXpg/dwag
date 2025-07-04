@@ -10,6 +10,9 @@
     <SelfContained>false</SelfContained>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
 
+    <PublishReadyToRun>true</PublishReadyToRun>
+    <TieredCompilationQuickJitForLoops>true</TieredCompilationQuickJitForLoops>
+
     <Version>0.3.0</Version>
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     <Title>dwag</Title>
