@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.3.1]
+
+- Published R2R
+
 ## [0.3.0]
 
 - Added dark theme support (auto detected)
