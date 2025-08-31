@@ -17,7 +17,7 @@ public class DragSourceForm : Form
 
 		MouseEnter += (_, _) => BackColor = Theme.Hover;
 		MouseLeave += (_, _) => BackColor = Theme.Background;
-		MouseMove += DragSource_MouseMove;
+		MouseMove += DragSource_MouseMove!;
 
 		Padding = new(10, 10, 10, 10);
 		BackColor = Theme.Background;
