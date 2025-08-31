@@ -27,6 +27,6 @@ static class Program
 			return;
 		}
 
-		Application.Run(new DragSourceForm(args));
+		Application.Run(new DragSourceForm(Globals.ArgParser.Files));
 	}
 }

@@ -14,7 +14,7 @@ public class ArgParser
 {
 	[Arg("h", "Show help")]
 	public bool Help { get; private set; }
-	[Arg("m", "Move files instead of copying")]
+	[Arg("m", "Move files instead of copy")]
 	public bool Move { get; private set; }
 	public string[] Files;
 

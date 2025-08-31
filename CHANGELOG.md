@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.3.2]
+
+- Minor fix on argument parsing
+
 ## [0.3.1]
 
 - Published R2R
