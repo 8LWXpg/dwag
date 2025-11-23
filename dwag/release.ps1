@@ -14,9 +14,8 @@ git push --tags
 mkdir out -ErrorAction Ignore > $null
 Remove-Item ./out/*.zip -Recurse -Force -ErrorAction Ignore
 foreach ($arch in $targetArch) {
-    $releasePath = "./bin/Release/net9.0-windows/$arch/publish/$name.exe"
-
-    dotnet publish -r $arch -c Release
+    $publishDir = dotnet publish -r $arch -c Release -getProperty:PublishDir
+    $releasePath = "$publishDir$name.exe"
 
     Remove-Item "$tempDir/*" -Recurse -Force -ErrorAction Ignore
     mkdir "$tempDir" -ErrorAction Ignore

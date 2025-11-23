@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.4.0]
+
+- Bumped .Net version to 10.0
+
 ## [0.3.2]
 
 - Minor fix on argument parsing
