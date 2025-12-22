@@ -6,10 +6,9 @@ Drag and drop files/folders from your terminal on Windows
 
 ## Prerequisites
 
-.NET 10 Desktop Runtime
+.NET Desktop Runtime 10
 
-- [x64](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-10.0.0-windows-x64-installer)
-- [ARM64](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-10.0.0-windows-arm64-installer)
+- [Download .NET 10.0 (Linux, macOS, and Windows) | .NET](https://dotnet.microsoft.com/en-us/download/dotnet/10.0)
 
 ## Installation
 
