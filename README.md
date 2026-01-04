@@ -16,7 +16,7 @@ Drag and drop files/folders from your terminal on Windows
 
 Download executable from latest release.
 
-### Build from source
+### Build from Source
 
 1. Clone the repo
 1. `cd dwag; dotnet publish -c Release -r [win-x64|win-arm64]`
@@ -24,9 +24,21 @@ Download executable from latest release.
 
 ## Usage
 
-```
+```shell
 Usage: dwag [options] [path]...
 Options:
     -m  --move  Move files instead of copying
     -h  --help  Show help
+```
+
+### Use With `yazi`
+
+In `keymap.toml`
+
+```toml
+[[mgr.prepend_keymap]]
+on = '<C-o>'
+run = 'shell -- dwag %*'
+for = 'windows'
+desc = 'Drag files/folders'
 ```
