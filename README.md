@@ -38,7 +38,7 @@ In `keymap.toml`
 ```toml
 [[mgr.prepend_keymap]]
 on = '<C-o>'
-run = 'shell -- dwag %*'
+run = 'shell -- dwag %h'
 for = 'windows'
 desc = 'Drag files/folders'
 ```
