@@ -254,11 +254,10 @@ unsafe extern "system" fn wndproc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: 
 						DROPEFFECT_COPY
 					};
 
-					if let Ok(result) = start_drag_drop(&state.paths, effect) {
-						if result == DROPEFFECT_MOVE || result == DROPEFFECT_COPY {
+					if let Ok(result) = start_drag_drop(&state.paths, effect)
+						&& (result == DROPEFFECT_MOVE || result == DROPEFFECT_COPY) {
 							unsafe { PostQuitMessage(0) };
 						}
-					}
 				} else if !state.hover {
 					state.hover = true;
 					unsafe {
@@ -355,11 +354,10 @@ fn paint_window(hwnd: HWND, state: &WindowState) -> Result<()> {
 	let mut y = 10;
 	for (i, path) in state.paths.iter().enumerate() {
 		// Draw icon (24x24, centered vertically in 40px row)
-		if let Some(icon) = state.icons.get(i) {
-			if !icon.is_invalid() {
+		if let Some(icon) = state.icons.get(i)
+			&& !icon.is_invalid() {
 				let _ = unsafe { DrawIconEx(hdc, 10, y + 8, *icon, 24, 24, 0, None, DI_NORMAL) };
 			}
-		}
 
 		// Draw filename
 		let name = Path::new(path)

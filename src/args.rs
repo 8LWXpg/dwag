@@ -27,12 +27,10 @@ impl Args {
     }
     
     pub fn get_help(&self) -> String {
-        format!(
-            "dwag v0.1.0\n\
+        "dwag v0.1.0\n\
              Usage: dwag [options] [path]...\n\
              Options:\n\
              \t-h, --help\t\tShow help\n\
-             \t-m, --move\t\tMove files instead of copy\n"
-        )
+             \t-m, --move\t\tMove files instead of copy\n".to_string()
     }
 }
