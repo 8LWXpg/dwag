@@ -10,7 +10,7 @@ use windows::{
 			Ole::{DROPEFFECT_COPY, DROPEFFECT_MOVE},
 			SystemServices::MK_LBUTTON,
 		},
-		UI::{Controls::*, Input::KeyboardAndMouse::*, Shell::*, WindowsAndMessaging::*},
+		UI::{Controls::*, HiDpi::*, Input::KeyboardAndMouse::*, Shell::*, WindowsAndMessaging::*},
 	},
 	core::*,
 };
@@ -37,6 +37,10 @@ struct WindowState {
 fn main() -> Result<()> {
 	let args = Args::parse(std::env::args().collect());
 
+	unsafe {
+		let _ = SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+	}
+
 	if args.help || args.files.is_empty() {
 		let help = args.get_help();
 		unsafe {
@@ -49,7 +53,6 @@ fn main() -> Result<()> {
 	let paths: Vec<String> = args
 		.files
 		.into_iter()
-		.rev()
 		.filter_map(|p| {
 			std::path::absolute(&p)
 				.ok()
@@ -106,7 +109,7 @@ fn main() -> Result<()> {
 			icons,
 			font,
 			theme,
-			is_move: args.is_move,
+			is_move: args.r#move,
 			hover: false,
 		});
 
@@ -176,8 +179,15 @@ fn extract_icon(path: &str) -> HICON {
 
 fn create_font() -> HFONT {
 	unsafe {
+		// Match C# Font("Segoe UI", 10, FontStyle.Regular) → ToHfont()
+		// GDI+ computes lfHeight = -(emSize * dpiY / 72) for GraphicsUnit.Point
+		let hdc = GetDC(None);
+		let dpi_y = GetDeviceCaps(Some(hdc), LOGPIXELSY);
+		let _ = ReleaseDC(None, hdc);
+		let height = -(10 * dpi_y / 72);
+
 		CreateFontW(
-			-13, // 10pt at 96 DPI
+			height,
 			0,
 			0,
 			0,
@@ -215,13 +225,13 @@ fn calculate_window_size(paths: &[String], font: HFONT) -> (i32, i32) {
 		SelectObject(hdc, old_font);
 		let _ = ReleaseDC(None, hdc);
 
-		// Match C# layout: icon(24) + textWidth + table_padding(10) + extra(45)
-		let item_width = 24 + max_text_width + 10 + 45;
+		// Layout: icon(24) + textWidth + table_padding(10) + extra(20)
+		let item_width = 24 + max_text_width + 10 + 20;
 		// Form padding: 10 left + 10 right
 		let width = item_width + 20;
 
 		let caption_height = GetSystemMetrics(SM_CYCAPTION);
-		// Match C#: totalHeight + padding(10+10) + captionHeight + 20
+		// totalHeight + padding(10+10) + captionHeight + 20
 		let height = (paths.len() as i32 * 40) + 20 + caption_height + 20;
 
 		(width, height)
@@ -255,9 +265,10 @@ unsafe extern "system" fn wndproc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: 
 					};
 
 					if let Ok(result) = start_drag_drop(&state.paths, effect)
-						&& (result == DROPEFFECT_MOVE || result == DROPEFFECT_COPY) {
-							unsafe { PostQuitMessage(0) };
-						}
+						&& (result == DROPEFFECT_MOVE || result == DROPEFFECT_COPY)
+					{
+						unsafe { PostQuitMessage(0) };
+					}
 				} else if !state.hover {
 					state.hover = true;
 					unsafe {
@@ -308,7 +319,9 @@ unsafe extern "system" fn wndproc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: 
 					}
 				}
 				if !state.font.is_invalid() {
-					unsafe { let _ = DeleteObject(HGDIOBJ(state.font.0)); };
+					unsafe {
+						let _ = DeleteObject(HGDIOBJ(state.font.0));
+					};
 				}
 			}
 			unsafe { PostQuitMessage(0) };
@@ -355,9 +368,10 @@ fn paint_window(hwnd: HWND, state: &WindowState) -> Result<()> {
 	for (i, path) in state.paths.iter().enumerate() {
 		// Draw icon (24x24, centered vertically in 40px row)
 		if let Some(icon) = state.icons.get(i)
-			&& !icon.is_invalid() {
-				let _ = unsafe { DrawIconEx(hdc, 10, y + 8, *icon, 24, 24, 0, None, DI_NORMAL) };
-			}
+			&& !icon.is_invalid()
+		{
+			let _ = unsafe { DrawIconEx(hdc, 10, y + 8, *icon, 24, 24, 0, None, DI_NORMAL) };
+		}
 
 		// Draw filename
 		let name = Path::new(path)

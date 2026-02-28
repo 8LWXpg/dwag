@@ -10,8 +10,8 @@
             "name": "Debug executable 'dwag'",
             "program": "${workspaceRoot}/target/debug/${workspaceFolderBasename}.exe",
             "args": [
-                "./Cargo.toml",
-                "E:/rs/dwag/Cargo.lock"
+                "./test/test-loooooooong.txt",
+                "E:/rs/dwag/test/test1.txt"
             ],
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
