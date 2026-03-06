@@ -14,6 +14,12 @@ Drag and drop files/folders from your terminal on Windows
 
 Download executable from latest release.
 
+### Install With `cargo-binstall`
+
+```
+cargo binstall --git https://github.com/8LWXpg/dwag dwag
+```
+
 ### Build from Source
 
 1. Clone the repo
