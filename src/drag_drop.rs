@@ -56,8 +56,8 @@ impl DataObject {
 		}
 	}
 
-	/// Match a requested FORMATETC against our supported format (C++ LookupFormatEtc).
-	/// Uses bitwise AND for tymed (it is a bitmask per COM spec).
+	/// Match a requested FORMATETC against our supported format
+	/// Uses bitwise AND for tymed (it is a bitmask per COM spec)
 	fn matches_format(requested: &FORMATETC) -> bool {
 		let supported = Self::supported_format();
 		requested.cfFormat == supported.cfFormat
@@ -137,8 +137,8 @@ impl IDataObject_Impl for DataObject_Impl {
 	}
 
 	fn GetDataHere(&self, _pformatetc: *const FORMATETC, _pmedium: *mut STGMEDIUM) -> Result<()> {
-		// GetDataHere is only required for IStream and IStorage mediums;
-		// it is an error to call it for HGLOBAL and other clipboard formats.
+		// GetDataHere is only required for IStream and IStorage mediums
+		// it is an error to call it for HGLOBAL and other clipboard formats
 		Err(DV_E_FORMATETC.into())
 	}
 
@@ -233,7 +233,7 @@ impl IEnumFORMATETC_Impl for EnumFormatEtc_Impl {
 				let src = &self.formats[idx];
 				*rgelt.add(copied as usize) = *src;
 
-				// Deep copy ptd if non-null (matches C++ DeepCopyFormatEtc)
+				// Deep copy ptd if non-null
 				if !src.ptd.is_null() {
 					let ptd = CoTaskMemAlloc(size_of::<DVTARGETDEVICE>());
 					if !ptd.is_null() {

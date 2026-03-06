@@ -24,6 +24,7 @@ use drag_drop::start_drag_drop;
 use theme::Theme;
 
 const CLASS_NAME: PCWSTR = w!("DwagWindow");
+const BASE_DPI: i32 = 96;
 
 struct WindowState {
 	paths: Vec<String>,
@@ -35,9 +36,9 @@ struct WindowState {
 	layout: Layout,
 }
 
-/// Scale a pixel value from 96 DPI baseline to the actual DPI.
+/// Scale a pixel value from BASE_DPI DPI baseline to the actual DPI.
 fn scale(px: i32, dpi: i32) -> i32 {
-	px * dpi / 96
+	px * dpi / BASE_DPI
 }
 
 /// Extract the filename portion of a path for display.
@@ -48,25 +49,28 @@ fn display_name(path: &str) -> &str {
 		.unwrap_or(path)
 }
 
-/// All layout dimensions for the file list window, pre-scaled to the target DPI.
+/// All layout dimensions for the file list window, pre-scaled to the target DPI
 ///
-/// Base values (at 96 DPI) are defined as constants; [`Layout::new`] scales them
-/// once so every consumer works with pixel-ready values.
+/// Base values (at BASE_DPI) are defined as constants; [`Layout::new`] scales them
+/// once so every consumer works with pixel-ready values
 struct Layout {
-	/// File icon width and height (24 @ 96 DPI).
+	/// The DPI this layout was computed for.
+	dpi: u32,
+	/// File icon width and height (24 @ BASE_DPI)
 	icon_size: i32,
-	/// Height of each file entry row (40 @ 96 DPI).
+	/// Height of each file entry row (40 @ BASE_DPI)
 	row_height: i32,
 	/// Content inset from the window client-area edges
-	/// left, right, top, and bottom (5 @ 96 DPI).
+	/// left, right, top, and bottom (5 @ BASE_DPI)
 	padding: i32,
-	/// Horizontal gap between the icon and the filename text (6 @ 96 DPI).
+	/// Horizontal gap between the icon and the filename text (6 @ BASE_DPI)
 	icon_text_gap: i32,
 }
 
 impl Layout {
 	fn new(dpi: i32) -> Self {
 		Self {
+			dpi: dpi as u32,
 			icon_size: scale(24, dpi),
 			row_height: scale(30, dpi),
 			padding: scale(10, dpi),
@@ -79,8 +83,8 @@ impl Layout {
 		self.padding + self.icon_size + self.icon_text_gap
 	}
 
-	/// Calculate window dimensions for the given max text width and item count.
-	/// Returns the outer window size (including title bar and borders).
+	/// Calculate window dimensions for the given max text width and item count
+	/// Returns the outer window size (including title bar and borders)
 	fn window_size(&self, max_text_width: i32, item_count: i32) -> (i32, i32) {
 		let client_w =
 			self.padding + self.icon_size + self.icon_text_gap + max_text_width + self.padding;
@@ -94,7 +98,7 @@ impl Layout {
 			bottom: client_h,
 		};
 		unsafe {
-			let _ = AdjustWindowRectEx(&mut rc, style, false, WS_EX_DLGMODALFRAME);
+			let _ = AdjustWindowRectExForDpi(&mut rc, style, false, WS_EX_DLGMODALFRAME, self.dpi);
 		}
 
 		(rc.right - rc.left, rc.bottom - rc.top)
@@ -257,7 +261,6 @@ fn extract_icon(path: &str) -> HICON {
 
 fn create_font(dpi: i32) -> HFONT {
 	unsafe {
-		// Match C# Font("Segoe UI", 10, FontStyle.Regular) → ToHfont()
 		// GDI+ computes lfHeight = -(emSize * dpiY / 72) for GraphicsUnit.Point
 		let height = -(10 * dpi / 72);
 
@@ -319,7 +322,7 @@ unsafe extern "system" fn wndproc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: 
 		WM_MOUSEMOVE => {
 			let state = get_state_mut(hwnd);
 			if let Some(state) = state {
-				// Drag on move with left button held (matches C# MouseMove handler)
+				// Drag on move with left button held
 				if wparam.0 & MK_LBUTTON.0 as usize != 0 {
 					let effect = if state.is_move {
 						DROPEFFECT_MOVE
@@ -369,6 +372,45 @@ unsafe extern "system" fn wndproc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: 
 					);
 					let _ = InvalidateRect(Some(hwnd), None, true);
 				};
+			}
+			LRESULT(0)
+		}
+		WM_DPICHANGED => {
+			let state = get_state_mut(hwnd);
+			if let Some(state) = state {
+				let new_dpi = (wparam.0 & 0xFFFF) as i32;
+
+				// Recreate the font for the new DPI
+				if !state.font.is_invalid() {
+					unsafe {
+						let _ = DeleteObject(HGDIOBJ(state.font.0));
+					};
+				}
+				state.font = create_font(new_dpi);
+
+				// Recalculate layout dimensions
+				state.layout = Layout::new(new_dpi);
+
+				// Remeasure text and resize window
+				let max_text_width = measure_max_text_width(&state.paths, state.font);
+				let (width, height) = state
+					.layout
+					.window_size(max_text_width, state.paths.len() as i32);
+
+				// Use the suggested rect's position, but our calculated size
+				let suggested = unsafe { &*(lparam.0 as *const RECT) };
+				unsafe {
+					let _ = SetWindowPos(
+						hwnd,
+						None,
+						suggested.left,
+						suggested.top,
+						width,
+						height,
+						SWP_NOZORDER | SWP_NOACTIVATE,
+					);
+					let _ = InvalidateRect(Some(hwnd), None, true);
+				}
 			}
 			LRESULT(0)
 		}
