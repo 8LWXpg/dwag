@@ -1,9 +1,12 @@
-
 # dwag
 
 Drag and drop files/folders from your terminal on Windows
 
 ![preview](./assets/preview.avif)
+
+> [!NOTE]
+> As of `v1.0.0` this project has been rewritten in Rust. It remains a drop-in replacement with slight improvement.
+> The original C# implementation is preserved in the [`csharp`](../../tree/csharp) branch and prior [releases](../../release)
 
 ## Installation
 
