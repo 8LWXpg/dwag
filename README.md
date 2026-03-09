@@ -22,8 +22,9 @@ cargo binstall --git https://github.com/8LWXpg/dwag dwag
 
 ### Build from Source
 
-1. Clone the repo
-1. `cd dwag; cargo install --path .`
+```
+cargo install --git https://github.com/8LWXpg/dwag
+```
 
 ## Usage
 
