@@ -16,7 +16,7 @@ macro_rules! define_args {
 				};
 
 				for raw in flags {
-					let name = raw.trim_start_matches('-').to_lowercase();
+					let name = raw.trim_start_matches('-');
 					$(if name == $short || name == $long {
 						result.$field = true;
 					})*
@@ -27,9 +27,14 @@ macro_rules! define_args {
 
 			pub fn get_help(&self) -> String {
 				use ::std::fmt::Write;
-				let mut sb = String::from(
-					"dwag v0.1.0\nUsage: dwag [options] [path]...\nOptions:\n",
-				);
+                let mut sb = String::from(concat!(
+                    env!("CARGO_PKG_NAME"),
+                    " v",
+                    env!("CARGO_PKG_VERSION"),
+                    "\nUsage: ",
+                    env!("CARGO_PKG_NAME"),
+                    " [options] [path]...\nOptions:\n",
+                ));
 				$(writeln!(sb, "\t{:<15}\t{}", concat!("-", $short, ", --", $long), $desc).unwrap();)*
 				sb
 			}

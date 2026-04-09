@@ -1,6 +1,6 @@
 [package]
 name = "dwag"
-version = "1.0.0"
+version = "1.0.1"
 edition = "2024"
 rust-version = "1.88.0"
 description = "Drag and drop files/folders from your terminal on Windows"
