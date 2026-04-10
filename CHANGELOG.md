@@ -3,7 +3,7 @@
 ## 1.0.1
 
 - Fix version in help message
-- Change argument parse to case-sensitive
+- Change argument parsing to case-sensitive
 
 ## [1.0.0]
 
