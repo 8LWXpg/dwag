@@ -12,7 +12,7 @@ Drag and drop files/folders from your terminal on Windows
 
 ### Download
 
-Download executable from latest release.
+Download executable from [latest release](https://github.com/8LWXpg/dwag/releases/latest).
 
 ### Install With `cargo-binstall`
 
