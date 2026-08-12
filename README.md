@@ -45,4 +45,11 @@ on = '<C-o>'
 run = 'shell -- dwag %s'
 for = 'windows'
 desc = 'Drag files/folders'
+
+# Use dwag in WSL
+[[mgr.prepend_keymap]]
+on = "<C-o>"
+run = 'shell -- dwag.exe "$(wslpath -w %s)"'
+for = "unix"
+desc = "Drag files/folders"
 ```
