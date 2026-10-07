@@ -9,7 +9,6 @@ use windows::{
 	core::*,
 };
 
-#[derive(Clone)]
 #[implement(IDropSource)]
 struct DropSource;
 
@@ -34,7 +33,6 @@ impl IDropSource_Impl for DropSource_Impl {
 	}
 }
 
-#[derive(Clone)]
 #[implement(IDataObject)]
 struct DataObject {
 	paths: Vec<String>,
@@ -202,7 +200,6 @@ impl IDataObject_Impl for DataObject_Impl {
 	}
 }
 
-#[derive(Clone)]
 #[implement(IEnumFORMATETC)]
 struct EnumFormatEtc {
 	formats: Vec<FORMATETC>,

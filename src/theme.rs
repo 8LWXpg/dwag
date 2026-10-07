@@ -1,6 +1,5 @@
 use windows::{Win32::System::Registry::*, core::*};
 
-#[derive(Clone, Copy)]
 pub struct Theme {
 	pub background: u32,
 	pub hover: u32,
