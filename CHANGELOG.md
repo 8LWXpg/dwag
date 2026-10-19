@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.2
+
+- Fixed title bar settings to be theme aware.
+
 ## 1.0.1
 
 - Fix version in help message

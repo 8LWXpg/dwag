@@ -4,6 +4,7 @@ pub struct Theme {
 	pub background: u32,
 	pub hover: u32,
 	pub text: u32,
+	pub is_dark: bool,
 }
 
 impl Theme {
@@ -11,12 +12,14 @@ impl Theme {
 		background: 0x00FFFFFF, // White
 		hover: 0x00D3D3D3,      // LightGray
 		text: 0x00000000,       // Black
+		is_dark: false,
 	};
 
 	pub const DARK: Theme = Theme {
 		background: 0x00000000, // Black
 		hover: 0x00696969,      // DimGray
 		text: 0x00FFFFFF,       // White
+		is_dark: true,
 	};
 
 	pub fn detect() -> Theme {

@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::{cell::Cell, path::Path, sync::LazyLock};
 
 use windows::{
 	Win32::{
@@ -25,6 +25,7 @@ use theme::Theme;
 
 const CLASS_NAME: PCWSTR = w!("DwagWindow");
 const BASE_DPI: i32 = 96;
+static DWAG: LazyLock<HSTRING> = LazyLock::new(|| HSTRING::from(env!("CARGO_PKG_NAME")));
 
 struct WindowState {
 	paths: Vec<String>,
@@ -32,8 +33,46 @@ struct WindowState {
 	font: HFONT,
 	theme: Theme,
 	is_move: bool,
-	hover: bool,
+	hover: Cell<bool>,
 	layout: Layout,
+}
+
+impl WindowState {
+	/// `GWLP_USERDATA` must be null or a valid `WindowState` pointer set in `WM_CREATE`
+	unsafe fn from_hwnd<'a>(hwnd: HWND) -> Option<&'a Self> {
+		unsafe { (GetWindowLongPtrW(hwnd, GWLP_USERDATA) as *const Self).as_ref() }
+	}
+
+	unsafe fn from_hwnd_mut<'a>(hwnd: HWND) -> Option<&'a mut Self> {
+		unsafe { (GetWindowLongPtrW(hwnd, GWLP_USERDATA) as *mut Self).as_mut() }
+	}
+
+	/// # Safety
+	/// `GWLP_USERDATA` must be null or the pointer installed in `WM_CREATE`, and no
+	/// references from `from_hwnd`/`from_hwnd_mut` may be live.
+	unsafe fn take_from_hwnd(hwnd: HWND) -> Option<Box<Self>> {
+		let ptr = unsafe { SetWindowLongPtrW(hwnd, GWLP_USERDATA, 0) } as *mut Self;
+		if ptr.is_null() {
+			None
+		} else {
+			Some(unsafe { Box::from_raw(ptr) })
+		}
+	}
+}
+
+impl Drop for WindowState {
+	fn drop(&mut self) {
+		unsafe {
+			for icon in &self.icons {
+				if !icon.is_invalid() {
+					let _ = DestroyIcon(*icon);
+				}
+			}
+			if !self.font.is_invalid() {
+				let _ = DeleteObject(HGDIOBJ(self.font.0));
+			}
+		}
+	}
 }
 
 /// Scale a pixel value from BASE_DPI DPI baseline to the actual DPI.
@@ -115,7 +154,7 @@ fn main() -> Result<()> {
 	if args.help || args.files.is_empty() {
 		let help = args.get_help();
 		unsafe {
-			MessageBoxW(None, &HSTRING::from(&help), w!("dwag"), MB_OK);
+			MessageBoxW(None, &HSTRING::from(&help), &*DWAG, MB_OK);
 		}
 		return Ok(());
 	}
@@ -137,7 +176,7 @@ fn main() -> Result<()> {
 			MessageBoxW(
 				None,
 				w!("Files/folders do not exist"),
-				w!("dwag"),
+				&*DWAG,
 				MB_OK | MB_ICONERROR,
 			);
 		}
@@ -147,12 +186,16 @@ fn main() -> Result<()> {
 	// Extract shell icons for each path
 	let icons: Vec<HICON> = paths.iter().map(|p| extract_icon(p)).collect();
 
-	// Get system DPI for scaling
+	// Get cursor position
+	let mut cursor_pos = POINT::default();
+	unsafe { GetCursorPos(&mut cursor_pos)? };
+
+	// Get DPI of monitor on cursor position
 	let dpi = unsafe {
-		let hdc = GetDC(None);
-		let dpi = GetDeviceCaps(Some(hdc), LOGPIXELSY);
-		let _ = ReleaseDC(None, hdc);
-		dpi
+		let monitor = MonitorFromPoint(cursor_pos, MONITOR_DEFAULTTONEAREST);
+		let (mut dpi_x, mut dpi_y) = (0u32, 0u32);
+		GetDpiForMonitor(monitor, MDT_EFFECTIVE_DPI, &mut dpi_x, &mut dpi_y)?;
+		dpi_y as i32
 	};
 
 	// Create font (Segoe UI, 10pt)
@@ -160,6 +203,7 @@ fn main() -> Result<()> {
 
 	let layout = Layout::new(dpi);
 	let theme = Theme::detect();
+	let dark_mode = theme.is_dark as i32;
 
 	unsafe {
 		let instance = GetModuleHandleW(None)?;
@@ -173,17 +217,13 @@ fn main() -> Result<()> {
 			..Default::default()
 		};
 
-		let class_registered = RegisterClassW(&wc);
-
-		assert!(class_registered != 0);
+		if RegisterClassW(&wc) == 0 {
+			return Err(Error::from_thread());
+		}
 
 		// Calculate window size by measuring text
 		let max_text_width = measure_max_text_width(&paths, font);
 		let (width, height) = layout.window_size(max_text_width, paths.len() as i32);
-
-		// Get cursor position
-		let mut cursor_pos = POINT::default();
-		GetCursorPos(&mut cursor_pos)?;
 
 		let state = Box::new(WindowState {
 			paths,
@@ -191,14 +231,14 @@ fn main() -> Result<()> {
 			font,
 			theme,
 			is_move: args.r#move,
-			hover: false,
+			hover: Cell::new(false),
 			layout,
 		});
 
 		let hwnd = CreateWindowExW(
 			WS_EX_DLGMODALFRAME,
 			CLASS_NAME,
-			w!("dwag"),
+			&*DWAG,
 			WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU,
 			cursor_pos.x,
 			cursor_pos.y,
@@ -211,16 +251,15 @@ fn main() -> Result<()> {
 		)?;
 
 		// Enable dark mode
-		let dark_mode: i32 = 1;
-		DwmSetWindowAttribute(
+		let _ = DwmSetWindowAttribute(
 			hwnd,
 			DWMWA_USE_IMMERSIVE_DARK_MODE,
 			&dark_mode as *const _ as *const _,
 			std::mem::size_of::<i32>() as u32,
-		)?;
+		);
 
 		let _ = ShowWindow(hwnd, SW_SHOW);
-		SetWindowPos(
+		let _ = SetWindowPos(
 			hwnd,
 			Some(HWND_TOPMOST),
 			0,
@@ -228,16 +267,15 @@ fn main() -> Result<()> {
 			0,
 			0,
 			SWP_NOMOVE | SWP_NOSIZE,
-		)?;
+		);
 
 		let mut msg = MSG::default();
-		while GetMessageW(&mut msg, None, 0, 0).into() {
+		while GetMessageW(&mut msg, None, 0, 0).0 > 0 {
 			let _ = TranslateMessage(&msg);
 			DispatchMessageW(&msg);
 		}
-
-		Ok(())
 	}
+	Ok(())
 }
 
 fn extract_icon(path: &str) -> HICON {
@@ -313,14 +351,14 @@ unsafe extern "system" fn wndproc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: 
 			LRESULT(0)
 		},
 		WM_PAINT => {
-			let state = get_state(hwnd);
+			let state = unsafe { WindowState::from_hwnd(hwnd) };
 			if let Some(state) = state {
-				paint_window(hwnd, state).unwrap();
+				paint_window(hwnd, state);
 			}
 			LRESULT(0)
 		}
 		WM_MOUSEMOVE => {
-			let state = get_state_mut(hwnd);
+			let state = unsafe { WindowState::from_hwnd(hwnd) };
 			if let Some(state) = state {
 				// Drag on move with left button held
 				if wparam.0 & MK_LBUTTON.0 as usize != 0 {
@@ -335,8 +373,8 @@ unsafe extern "system" fn wndproc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: 
 					{
 						unsafe { PostQuitMessage(0) };
 					}
-				} else if !state.hover {
-					state.hover = true;
+				} else if !state.hover.get() {
+					state.hover.set(true);
 					unsafe {
 						SetClassLongPtrW(
 							hwnd,
@@ -361,9 +399,9 @@ unsafe extern "system" fn wndproc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: 
 			LRESULT(0)
 		}
 		WM_MOUSELEAVE => {
-			let state = get_state_mut(hwnd);
+			let state = unsafe { WindowState::from_hwnd(hwnd) };
 			if let Some(state) = state {
-				state.hover = false;
+				state.hover.set(false);
 				unsafe {
 					SetClassLongPtrW(
 						hwnd,
@@ -376,7 +414,7 @@ unsafe extern "system" fn wndproc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: 
 			LRESULT(0)
 		}
 		WM_DPICHANGED => {
-			let state = get_state_mut(hwnd);
+			let state = unsafe { WindowState::from_hwnd_mut(hwnd) };
 			if let Some(state) = state {
 				let new_dpi = (wparam.0 & 0xFFFF) as i32;
 
@@ -415,20 +453,7 @@ unsafe extern "system" fn wndproc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: 
 			LRESULT(0)
 		}
 		WM_DESTROY => {
-			let state_ptr = unsafe { GetWindowLongPtrW(hwnd, GWLP_USERDATA) } as *mut WindowState;
-			if !state_ptr.is_null() {
-				let state = unsafe { Box::from_raw(state_ptr) };
-				for icon in &state.icons {
-					if !icon.is_invalid() {
-						let _ = unsafe { DestroyIcon(*icon) };
-					}
-				}
-				if !state.font.is_invalid() {
-					unsafe {
-						let _ = DeleteObject(HGDIOBJ(state.font.0));
-					};
-				}
-			}
+			drop(unsafe { WindowState::take_from_hwnd(hwnd) });
 			unsafe { PostQuitMessage(0) };
 			LRESULT(0)
 		}
@@ -436,30 +461,14 @@ unsafe extern "system" fn wndproc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: 
 	}
 }
 
-fn get_state<'a>(hwnd: HWND) -> Option<&'a WindowState> {
-	let ptr = unsafe { GetWindowLongPtrW(hwnd, GWLP_USERDATA) } as *const WindowState;
-	if ptr.is_null() {
-		None
-	} else {
-		Some(unsafe { &*ptr })
-	}
-}
-
-fn get_state_mut<'a>(hwnd: HWND) -> Option<&'a mut WindowState> {
-	let ptr = unsafe { GetWindowLongPtrW(hwnd, GWLP_USERDATA) } as *mut WindowState;
-	if ptr.is_null() {
-		None
-	} else {
-		Some(unsafe { &mut *ptr })
-	}
-}
-
-fn paint_window(hwnd: HWND, state: &WindowState) -> Result<()> {
+fn paint_window(hwnd: HWND, state: &WindowState) {
 	let mut ps = PAINTSTRUCT::default();
 	let hdc = unsafe { BeginPaint(hwnd, &mut ps) };
 
 	let mut rect = RECT::default();
-	(unsafe { GetClientRect(hwnd, &mut rect) })?;
+	unsafe {
+		let _ = GetClientRect(hwnd, &mut rect);
+	}
 
 	unsafe {
 		SetTextColor(hdc, COLORREF(state.theme.text));
@@ -478,8 +487,8 @@ fn paint_window(hwnd: HWND, state: &WindowState) -> Result<()> {
 			&& !icon.is_invalid()
 		{
 			let icon_y = y + (layout.row_height - layout.icon_size) / 2;
-			let _ = unsafe {
-				DrawIconEx(
+			unsafe {
+				let _ = DrawIconEx(
 					hdc,
 					layout.padding,
 					icon_y,
@@ -489,8 +498,8 @@ fn paint_window(hwnd: HWND, state: &WindowState) -> Result<()> {
 					0,
 					None,
 					DI_NORMAL,
-				)
-			};
+				);
+			}
 		}
 
 		// Draw filename
@@ -523,6 +532,4 @@ fn paint_window(hwnd: HWND, state: &WindowState) -> Result<()> {
 	unsafe {
 		let _ = EndPaint(hwnd, &ps);
 	};
-
-	Ok(())
 }

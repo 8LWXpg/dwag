@@ -6,6 +6,18 @@ on:
       - "v*"
 
 jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: taiki-e/create-gh-release-action@v1
+        with:
+          title: $tag
+          changelog: CHANGELOG.md
+
   build-upload:
     name: release ${{ matrix.target }}
     runs-on: ${{ matrix.os }}
