@@ -31,8 +31,8 @@ cargo install --git https://github.com/8LWXpg/dwag
 ```shell
 Usage: dwag [options] [path]...
 Options:
-    -m  --move  Move files instead of copying
     -h  --help  Show help
+    -m  --move  Move files instead of copy
 ```
 
 ### Use With `yazi`

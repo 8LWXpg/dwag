@@ -2,7 +2,7 @@
 
 ## 1.0.2
 
-- Fixed title bar settings to be theme aware.
+- Fixed title bar to be theme aware.
 
 ## 1.0.1
 
